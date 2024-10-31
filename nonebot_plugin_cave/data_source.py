@@ -252,7 +252,7 @@ class Cave():
         )
         self.save()
         return {
-            'success':f'添加成功, 序号为 {cave_id}\n提交者: {contributor_id}',
+            'success':f'添加成功, 序号为 {cave_id}\n来自 {contributor_id}',
             'white_B':self.data['white_B'],
             'cave_id':cave_id
         }
@@ -426,7 +426,7 @@ class Cave():
                 )
             self.save()
             return {
-                'success':f'操作成功, 回声洞投稿 {cave_id}) 通过审核, 加入回声洞。'
+                'success':f'操作成功, 回声洞 ({cave_id}) 通过审核, 加入回声洞。'
             }
         else:
             return {
@@ -456,7 +456,7 @@ class Cave():
                     self.save()
             self.save()
             return {
-                'success':f'操作成功, 回声洞投稿 {cave_id} 不通过审核, 已将其删除。'
+                'success':f'操作成功, 回声洞 ({cave_id}) 不通过审核, 已将其删除。'
             }
         else:
             return {
