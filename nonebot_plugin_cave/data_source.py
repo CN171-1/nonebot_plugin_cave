@@ -1,3 +1,4 @@
+
 import json
 import os
 import random
@@ -61,7 +62,6 @@ class Cave():
                     "cd_num": 1,
                     "cd_unit": "sec",
                     "last_time": "1000-01-01 00:00:00.114514",
-                    "m_list": [],
                     "white_A":[]
                 }
         self.save()
@@ -156,12 +156,13 @@ class Cave():
             print(f.read())
         print(self.data)
         print(self.cave)
+        
+    def get_url_extension(self, url: str) -> str:
+        '''获取 URL 的图片的扩展名'''
+        response = requests.get(url)
+        content_type = response.headers.get('Content-Type')
+        return content_type.split('/')[-1]
 
-    def get_url_extension(self, url:str) -> str:
-        '''获取 URI 的图片的扩展名'''
-        with urllib.request.urlopen(url=url) as response:
-            info = response.info()
-            return info.get_content_subtype()
 
     def down_load(self, url:str, save_path:Path) -> None:
         '''下载图片'''
@@ -233,15 +234,6 @@ class Cave():
                 i.pop('data')
                 i['text'] = text
 
-        for i in self.data["groups_dict"]:
-            self.data["groups_dict"][i]["m_list"].append(
-                {
-                    'cave_id':cave_id,
-                    'state':state,
-                    'contributor_id':contributor_id,
-                    'time':str(datetime.now())
-                }
-            )
         self.cave.append(
             {
                 'cave_id':cave_id,
@@ -266,15 +258,6 @@ class Cave():
             return {
                 'error':f"索引为 {index} 的内容不存在或已被删除。"
             }
-        for i in self.data["groups_dict"]:
-            self.data["groups_dict"][i]["m_list"].append(
-                {
-                    'cave_id':index,
-                    'state':3,
-                    'contributor_id':self.get_cave(index=index)['contributor_id'],
-                    'time':str(datetime.now())
-                }
-            )
         for i in self.cave:
             if i['cave_id'] == index:
                 deleted = i
@@ -322,21 +305,7 @@ class Cave():
         return {
             'success':f'成功修改本群回声洞冷却时间为 {cd_num}{cd_unit}。'
         }
-
-    def get_recent(self) -> list:
-        '''
-        获取新增的投稿的审核情况，时间截至到上次获取\\
-        返回信息列表，并在文件中清除
-        '''
-        m_info = self.data["groups_dict"][self.group_id]["m_list"]
-        if m_info == [] :
-            return {
-                'error':'暂无新增的回声洞处理。'
-            } # type: ignore
-        self.data["groups_dict"][self.group_id]["m_list"] = []
-        self.save()
-        return m_info
-
+        
     def wA_add(self, a_id:str) -> dict:
         '''
         添加白名单 A 成员
@@ -415,18 +384,8 @@ class Cave():
     def set_true(self, cave_id:int) -> dict:
         '''通过审核'''
         if self.check_id_state(id=cave_id, change_state=0):
-            for i in self.data["groups_dict"]:
-                self.data["groups_dict"][i]["m_list"].append(
-                    {
-                        'cave_id':cave_id,
-                        'state':0,
-                        'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
-                        'time':str(datetime.now())
-                    }
-                )
-            self.save()
             return {
-                'success':f'操作成功, 回声洞 ({cave_id}) 通过审核, 加入回声洞。'
+                'success':f'操作成功, 序号:({cave_id})通过审核, 加入回声洞。'
             }
         else:
             return {
@@ -441,22 +400,13 @@ class Cave():
     def set_false(self, cave_id:int) -> dict:
         '''不通过审核'''
         if self.check_id_state(id=cave_id, change_state=None):
-            for i in self.data["groups_dict"]:
-                self.data["groups_dict"][i]["m_list"].append(
-                    {
-                        'cave_id':cave_id,
-                        'state':2,
-                        'contributor_id':self.get_cave(index=cave_id)['contributor_id'],
-                        'time':str(datetime.now())
-                    }
-                )
             for i in self.cave:
                 if i['cave_id'] == cave_id:
                     self.cave.remove(i)
                     self.save()
             self.save()
             return {
-                'success':f'操作成功, 回声洞 ({cave_id}) 不通过审核, 已将其删除。'
+                'success':f'操作成功, 序号:({cave_id})不通过审核, 已将其删除。'
             }
         else:
             return {
