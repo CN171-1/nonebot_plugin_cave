@@ -75,6 +75,7 @@ async def cave_handle(
         for i in data["original_message"]:
             if i["type"] == "reply":
                 is_reply = True
+        user_id = event.get_user_id()
         if is_reply:
             cqcode:str = str(event.reply.message)
             user_id:str = str(event.reply.sender.user_id)
@@ -95,7 +96,6 @@ async def cave_handle(
             a_msg = a_msg.replace('cave', '', 1).strip()
             a_msg = a_msg.replace('-a', '', 1).strip()
             a_message[0]['data']['text'] = a_msg
-            user_id = event.get_user_id()
         a_result = cave.add(message=a_message, contributor_id=user_id, state=1)
         for i in a_result['white_B']:
             await bot.send_msg(
