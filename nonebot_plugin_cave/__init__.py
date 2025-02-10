@@ -75,10 +75,10 @@ async def cave_handle(
         for i in data["original_message"]:
             if i["type"] == "reply":
                 is_reply = True
-        user_id = event.get_user_id()
+        submit_user_id = event.get_user_id()
         if is_reply:
             cqcode:str = str(event.reply.message)
-            user_id:str = str(event.reply.sender.user_id)
+            submit_user_id:str = str(event.reply.sender.user_id)
             a_message = []
             for i in event.reply.dict()['message']:
                 a_message.append(
@@ -96,15 +96,15 @@ async def cave_handle(
             a_msg = a_msg.replace('cave', '', 1).strip()
             a_msg = a_msg.replace('-a', '', 1).strip()
             a_message[0]['data']['text'] = a_msg
-        a_result = cave.add(message=a_message, contributor_id=user_id, state=1)
+        a_result = cave.add(message=a_message, contributor_id=submit_user_id, state=1)
         for i in a_result['white_B']:
             await bot.send_msg(
                 message_type="private",
                 user_id=i,
                 message=f"待审核回声洞（{a_result['cave_id']}）\n"
                 + Message(cqcode)
-                + f"\n——{(await bot.get_stranger_info(user_id=event.get_user_id()))['nickname']}"
-                + f"（{event.get_user_id()}）"
+                + f"\n——{(await bot.get_stranger_info(user_id=submit_user_id))['nickname']}"
+                + f"（{submit_user_id}）"
             )
         await cave_matcher.finish(message = Message(a_result['success']) )
     
