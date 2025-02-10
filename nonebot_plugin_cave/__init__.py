@@ -11,8 +11,6 @@ from nonebot.params import CommandArg, CommandStart
 from nonebot.plugin import on_command
 
 from .data_source import Cave
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
 
 env_config = Config(**get_driver().config.dict())
 super_users = list(env_config.superusers)
