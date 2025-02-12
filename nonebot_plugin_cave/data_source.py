@@ -157,11 +157,11 @@ class Cave():
         print(self.data)
         print(self.cave)
 
-    def get_url_extension(self, url:str) -> str:
-        '''获取 URI 的图片的扩展名'''
-        with urllib.request.urlopen(url=url) as response:
-            info = response.info()
-            return info.get_content_subtype()
+    def get_url_extension(self, url: str) -> str:
+        '''获取 URL 的图片的扩展名'''
+        response = requests.get(url)
+        content_type = response.headers.get('Content-Type')
+        return content_type.split('/')[-1]
 
     def down_load(self, url:str, save_path:Path) -> None:
         '''下载图片'''
