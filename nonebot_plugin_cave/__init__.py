@@ -72,12 +72,13 @@ async def cave_handle(
     if args[1] == "a":
         data = json.loads(event.json())
         is_reply = False
+        contributor_user_id = event.get_user_id()
         for i in data["original_message"]:
             if i["type"] == "reply":
                 is_reply = True
         if is_reply:
             cqcode:str = str(event.reply.message)
-            user_id:str = str(event.reply.sender.user_id)
+            contributor_user_id:str = str(event.reply.sender.user_id)
             a_message = []
             for i in event.reply.dict()['message']:
                 a_message.append(
@@ -95,8 +96,7 @@ async def cave_handle(
             a_msg = a_msg.replace('cave', '', 1).strip()
             a_msg = a_msg.replace('-a', '', 1).strip()
             a_message[0]['data']['text'] = a_msg
-            user_id = event.get_user_id()
-        a_result = cave.add(message=a_message, contributor_id=user_id, state=1)
+        a_result = cave.add(message=a_message, contributor_id=contributor_user_id, state=1)
         for i in a_result['white_B']:
             try:
                 await bot.send_msg(
@@ -104,8 +104,8 @@ async def cave_handle(
                     user_id=i,
                     message=f"新的待审核回声洞 ({a_result['cave_id']})\n\n"
                     + Message(cqcode)
-                    + f"\n—— {(await bot.get_stranger_info(user_id=user_id))['nickname']}"
-                    + f" ({user_id})"
+                    + f"\n—— {(await bot.get_stranger_info(user_id=contributor_user_id))['nickname']}"
+                    + f" ({contributor_user_id})"
                 )
             except ActionFailed:
                 logger.warning(f"无法向用户 {i} 发送审核消息: ActionFailed")
